@@ -31,7 +31,6 @@ hero_pool = hero_hand + call_cards(runout)
 villain_pool = villain_hand + call_cards(runout)
 
 # Creating a hand ranking function which assigns a numeric value to every possible strength
-ranking = ["high_card", "pair", "two_pair", "three_of_a_kind", "straight", "flush", "full_house", "four_of_a_kind", "straight_flush", "royal_flush"]
 def parse_card(card):
     rank, suit = card[0], card[-1]
     return RANKS[rank], suit
@@ -118,3 +117,27 @@ def is_royal_flush(cards):
         if set(range(10,15)).issubset(ranks):
             return True
     return False
+
+def hand_value(hand):
+    value = 0
+    if is_royal_flush:
+        value = 9
+    elif is_straight_flush:
+        value = 8
+    elif is_four_of_a_kind:
+        value = 7
+    elif is_full_house:
+        value = 6
+    elif is_flush:
+        value = 5
+    elif is_straight:
+        value = 4
+    elif is_three_of_a_kind:
+        value = 3
+    elif is_two_pair:
+        value = 2
+    elif is_one_pair:
+        value = 1
+    by_rank = {}
+    for card in hand:
+        pass
