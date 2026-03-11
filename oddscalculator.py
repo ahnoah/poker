@@ -162,4 +162,4 @@ hero_win_percentage = 100 * hero_wins / total
 villain_win_percentage = 100 * villain_wins / total
 draw_percentage = 100 - hero_win_percentage - villain_win_percentage
 
-print(f"Hero win %: {hero_win_percentage:2f} \nVillain win %: {villain_win_percentage:.2f} \nDraw %: {draw_percentage:.2f}")
+print(f"Hero win %: {hero_win_percentage:.2f} \nVillain win %: {villain_win_percentage:.2f} \nDraw %: {draw_percentage:.2f}")
