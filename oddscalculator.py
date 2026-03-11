@@ -1,4 +1,4 @@
-import numpy as np
+from itertools import combinations
 
 # Establishing what cards remain in the deck
 cardpool = ["Ah","As","Ac","Ad","Kh","Ks","Kc","Kd","Qh","Qs","Qc","Qd","Jh","Js","Jc","Jd","Th","Ts","Tc","Td","9h","9s","9c","9d","8h","8s","8c","8d","7h","7s","7c","7d","6h","6s","6c","6d","5h","5s","5c","5d","4h","4s","4c","4d","3h","3s","3c","3d","2h","2s","2c","2d"]
@@ -10,27 +10,34 @@ def call_cards(s):
         result.append(s[i:i+2])
     return result
 
-hero_hand = call_cards(input("Enter your hand (e.g. AhTh): "))
-villain_hand = call_cards(input("Enter opponent's hand (e.g. QcQs): "))
+hero_hand = call_cards(input("Enter hero's hand (e.g. AhTh): "))
+villain_hand = call_cards(input("Enter villain's hand (e.g. QcQs): "))
 
 current_position = input("Please enter one of the following to represent where you are in the hand; preflop/flop/turn/river: ")
-cards_remaining = 5
-if current_position == "flop":
+if current_position == "preflop":
+    cards_remaining = 5
+elif current_position == "flop":
     cards_remaining = 2
 elif current_position == "turn":
     cards_remaining = 1
 elif current_position == "river":
     cards_remaining = 0 
+else: current_position = input("Please enter a valid position")
 
 if cards_remaining < 5:
-    runout = input("Enter the runout (e.g. QhJhTh): ")
-remove_cards = hero_hand + villain_hand + call_cards(runout)
+    runout = call_cards(input("Enter the runout (e.g. QhJhTh): "))
+    remove_cards = hero_hand + villain_hand + call_cards(runout)
+    hero_pool = hero_hand + call_cards(runout)
+    villain_pool = villain_hand + call_cards(runout)
+else: 
+    remove_cards = hero_hand + villain_hand
+    hero_pool = hero_hand
+    villain_pool = villain_hand
 
 deck = [x for x in cardpool if x not in remove_cards]
-hero_pool = hero_hand + call_cards(runout)
-villain_pool = villain_hand + call_cards(runout)
 
-# Creating a hand ranking function which assigns a numeric value to every possible strength
+
+# Creating a hand ranking function which assigns a numeric value to every possible hand strength
 def parse_card(card):
     rank, suit = card[0], card[-1]
     return RANKS[rank], suit
@@ -105,7 +112,7 @@ def is_straight_flush(cards):
     for ranks in by_suit.values():
         if len(ranks) >= 5 and is_straight([f"{r}x" for r in ranks]):
             return True
-        return False
+    return False
     
 def is_royal_flush(cards):
     by_suit = {}
@@ -120,24 +127,50 @@ def is_royal_flush(cards):
 
 def hand_value(hand):
     value = 0
-    if is_royal_flush:
+    if is_royal_flush(hand):
         value = 9
-    elif is_straight_flush:
+    elif is_straight_flush(hand):
         value = 8
-    elif is_four_of_a_kind:
+    elif is_four_of_a_kind(hand):
         value = 7
-    elif is_full_house:
+    elif is_full_house(hand):
         value = 6
-    elif is_flush:
+    elif is_flush(hand):
         value = 5
-    elif is_straight:
+    elif is_straight(hand):
         value = 4
-    elif is_three_of_a_kind:
+    elif is_three_of_a_kind(hand):
         value = 3
-    elif is_two_pair:
+    elif is_two_pair(hand):
         value = 2
-    elif is_one_pair:
+    elif is_one_pair(hand):
         value = 1
     by_rank = {}
-    for card in hand:
-        pass
+    hand = sorted([RANKS[card[0]]for card in hand], reverse = True)
+    def added_value(hand):
+        hold = 0
+        for i in range(5):
+            hold = hold + .01 ** (i + 1) * hand[i]
+        return hold
+    value = value + added_value(hand)
+    return value
+
+# Comparing hero and villain hand through each iteration to output % chances
+
+
+hero_wins = 0
+villain_wins = 0
+total = 0
+for i in [list(c) for c in combinations(deck, cards_remaining)]:
+        hero = hero_pool + i
+        villain = villain_pool + i
+        if hand_value(hero) > hand_value(villain):
+            hero_wins = hero_wins + 1
+        elif hand_value(villain) > hand_value(hero):
+            villain_wins = villain_wins + 1
+        total = total + 1
+hero_win_percentage = 100 * hero_wins / total
+villain_win_percentage = 100 * villain_wins / total
+draw_percentage = 100 - hero_win_percentage - villain_win_percentage
+
+print("Hero win %: " + hero_win_percentage + "\nVillain win %: " + villain_win_percentage + "\nDraw %: " + draw_percentage)
