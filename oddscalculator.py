@@ -38,10 +38,7 @@ else:
     hero_pool = hero_hand
     villain_pool = villain_hand
 
-print(hero_pool)
-
 deck = [x for x in cardpool if x not in remove_cards]
-
 
 # Creating a hand ranking function which assigns a numeric value to every possible hand strength
 def hand_value(hand):
@@ -56,7 +53,7 @@ def hand_value(hand):
         suit_counts[s] = suit_counts.get(s, 0) + 1
     
     def is_one_pair():
-        return any(c >= 2 for c in rank_counts.values)
+        return any(c >= 2 for c in rank_counts.values())
     
     def is_two_pair():
         return any(1 for c in rank_counts.values() if c >= 2) >= 2
